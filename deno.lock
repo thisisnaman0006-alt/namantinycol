@@ -1,0 +1,40 @@
+package main
+
+import (
+	"encoding/json"
+	"fmt"
+	"log"
+)
+
+// DenoLockStruct represents the structure of deno.lock file (Version 2)
+type DenoLockStruct struct {
+	Version string            `json:"version"`
+	Remote  map[string]string `json:"remote"`
+}
+
+func main() {
+	// Your deno.lock file JSON string
+	lockData := `{
+	  "version": "2",
+	  "remote": {
+	    "https://deno.land/std@0.168.0/fmt/colors.ts": "03ad95e543d2808bc43c17a3dd29d25b43d0f16287fe562a0be89bf632454a12",
+	    "https://deno.land/std@0.168.0/testing/_diff.ts": "a23e7fc2b4d8daa3e158fa06856bedf5334ce2a2831e8bf9e509717f455adb2c"
+	  }
+	}`
+
+	var lockFile DenoLockStruct
+
+	// Parse JSON into Struct
+	err := json.Unmarshal([]byte(lockData), &lockFile)
+	if err != nil {
+		log.Fatalf("Error parsing JSON: %v", err)
+	}
+
+	fmt.Printf("Deno Lock Version: %s\n", lockFile.Version)
+	fmt.Printf("Total Remote Modules: %d\n\n", len(lockFile.Remote))
+
+	// Access URLs and their Hashes
+	for url, hash := range lockFile.Remote {
+		fmt.Printf("URL: %s\nHash: %s\n\n", url, hash)
+	}
+}
