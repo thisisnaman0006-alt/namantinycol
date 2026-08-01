@@ -1,0 +1,65 @@
+package main
+
+import (
+	"html/template"
+	"log"
+	"net/http"
+)
+
+// Dynamic Data structure to send into HTML
+type PageData struct {
+	Title   string
+	Heading string
+	Message string
+}
+
+// Complete HTML Template String
+const indexHTML = `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{.Title}}</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; background-color: #f4f4f9; }
+        .container { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        h1 { color: #333; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>{{.Heading}}</h1>
+        <p>{{.Message}}</p>
+    </div>
+</body>
+</html>
+`
+
+func homeHandler(w http.ResponseWriter, r *http.Request) {
+	// Parse HTML Template
+	tmpl, err := template.New("index").Parse(indexHTML)
+	if err != nil {
+		http.Error(w, "Error loading template", http.StatusInternalServerError)
+		return
+	}
+
+	// Data to inject into HTML
+	data := PageData{
+		Title:   "My Go Web App",
+		Heading: "Welcome to Go Lang Web Server",
+		Message: "Ye HTML response Go backend se render ho kar aa raha hai!",
+	}
+
+	// Render HTML to Browser
+	tmpl.Execute(w, data)
+}
+
+func main() {
+	http.HandleFunc("/", homeHandler)
+
+	log.Println("Server running at http://localhost:8080")
+	if err := http.ListenAndServe(":8080", nil); err != nil {
+		log.Fatal(err)
+	}
+}
